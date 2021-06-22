@@ -20,6 +20,18 @@ app.layout = html.Div([
     ],
         className='row'
     ),
+    html.Div([
+        dcc.Dropdown(
+            id='lake',
+            options=[
+                {'label': 'Powell', 'value': 'lakepowell'},
+                {'label': 'Mead', 'value': 'hdmlc'},
+            ],
+            value='lakepowell'
+        )
+    ],
+        className='row'
+    ),
 ])
 
 if __name__ == '__main__':
