@@ -111,18 +111,28 @@ app.layout = html.Div([
         ],
             className='four columns'
         ),
+        html.Div([
+            dcc.Graph(
+                # figure=powell_fig,
+                id='combo-levels',
+            ),
+        ],
+            className='four columns'
+        ),
 
     ],
         className='row'
     ),
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
+    html.Div(id='combo-water-data', style={'display': 'none'}),
 ])
 
 
 @app.callback([
     Output('powell-water-data', 'children'),
-    Output('mead-water-data', 'children')],
+    Output('mead-water-data', 'children'),
+    Output('combo-water-data', 'children')],
     [Input('lake', 'value')])
 def clean_powell_data(lake):
     
@@ -178,8 +188,8 @@ def clean_powell_data(lake):
         
     mead_df = df_mead_water.drop(df_mead_water.index[0])
 
-    print(mead_df.head())
-    print(powell_df.head())
+    # print(mead_df.head())
+    # print(powell_df.head())
 
            
     start_date = date(1963, 6, 29)
@@ -190,7 +200,7 @@ def clean_powell_data(lake):
     df_mead_water = mead_df[9527:]
     
     df_total = pd.merge(df_mead_water, df_powell_water, how='inner', left_index=True, right_index=True)
-
+    
     df_total.rename(columns={'Date_x':'Date'}, inplace=True)
     
     df_total['Value_x'] = df_total['Value_x'].astype(int)
@@ -198,9 +208,10 @@ def clean_powell_data(lake):
     df_total['Value'] = df_total['Value_x'] + df_total['Value_y']
     
     # combo_df = df_total.drop(df_total.index[0])
+    combo_df = df_total
     # print(combo_df.head())
 
-    return powell_df.to_json(), mead_df.to_json()
+    return powell_df.to_json(), mead_df.to_json(), combo_df.to_json()
 
 def powell_level():
     powell_traces = []
@@ -228,16 +239,22 @@ def powell_level():
 
 @app.callback([
     Output('powell-levels', 'figure'),
-    Output('mead-levels', 'figure')],
+    Output('mead-levels', 'figure'),
+    Output('combo-levels', 'figure')],
     [Input('lake', 'value'),
     Input('powell-water-data', 'children'),
-    Input('mead-water-data', 'children')])
-def lake_graph(lake, powell_data, mead_data):
+    Input('mead-water-data', 'children'),
+    Input('combo-water-data', 'children')])
+def lake_graph(lake, powell_data, mead_data, combo_data):
     powell_df = pd.read_json(powell_data)
     mead_df = pd.read_json(mead_data)
+    combo_df = pd.read_json(combo_data)
+    print(combo_df)
 
     mead_traces = []
     powell_traces = []
+    combo_traces = []
+
     # if lake == 'hdmlc':
       
     data = mead_df.sort_index()
@@ -262,6 +279,11 @@ def lake_graph(lake, powell_data, mead_data):
         x = powell_df.index,
         name = 'Power level'
     )),
+
+    combo_traces.append(go.Scatter(
+        y = combo_df['Value'],
+        x = combo_df.index,
+    ))
     # elif lake == 'combo':
     #     title = 'Lake Powell and Lake Mead'
     #     traces.append(go.Scatter(
@@ -287,7 +309,16 @@ def lake_graph(lake, powell_data, mead_data):
         plot_bgcolor="#1f2630",
         font=dict(color="#2cfec1"),
     )
-    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}
+
+    combo_layout = go.Layout(
+        height =400,
+        title = 'Powell and Mead Total Storage',
+        yaxis = {'title':'Volume (AF)'},
+        paper_bgcolor="#1f2630",
+        plot_bgcolor="#1f2630",
+        font=dict(color="#2cfec1"),
+    )
+    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}
 
 if __name__ == '__main__':
     app.run_server(debug=True)
