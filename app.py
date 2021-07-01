@@ -185,6 +185,7 @@ def clean_powell_data(lake):
 
         df_mead_water = df_mead_water.set_index("Date")
         df_mead_water = df_mead_water.sort_index()
+        print(df_mead_water)
         
     mead_df = df_mead_water.drop(df_mead_water.index[0])
 
@@ -199,8 +200,9 @@ def clean_powell_data(lake):
     days = delta.days
     df_mead_water = mead_df[9527:]
     
-    df_total = pd.merge(df_mead_water, df_powell_water, how='inner', left_index=True, right_index=True)
-    
+    # df_total = pd.merge(df_mead_water, df_powell_water, how='inner', left_index=True, right_index=True)
+    df_total = pd.merge(mead_df, powell_df, how='inner', left_index=True, right_index=True)
+    print(df_total)
     df_total.rename(columns={'Date_x':'Date'}, inplace=True)
     
     df_total['Value_x'] = df_total['Value_x'].astype(int)
@@ -249,7 +251,7 @@ def lake_graph(lake, powell_data, mead_data, combo_data):
     powell_df = pd.read_json(powell_data)
     mead_df = pd.read_json(mead_data)
     combo_df = pd.read_json(combo_data)
-    print(combo_df)
+    # print(combo_df)
 
     mead_traces = []
     powell_traces = []
