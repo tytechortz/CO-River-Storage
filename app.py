@@ -123,6 +123,15 @@ app.layout = html.Div([
     ],
         className='row'
     ),
+    html.Div([
+        html.Div([
+            html.H6('Current Storage', style={'text-align': 'center'})
+        ],
+            className='twelve columns'
+        ),
+    ],
+        className='row'
+    ),
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
