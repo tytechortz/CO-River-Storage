@@ -127,7 +127,21 @@ app.layout = html.Div([
         html.Div([
             html.H6('Current Storage', style={'text-align': 'center'})
         ],
-            className='twelve columns'
+            className='four columns'
+        ),
+    ],
+        className='row'
+    ),
+    html.Div([
+        html.Div([
+            html.H6('Powell', style={'text-align': 'center'})
+        ],
+            className='two columns'
+        ),
+        html.Div([
+            html.Div(id='cur-pow', style={'text-align': 'center'})
+        ],
+            className='one column'
         ),
     ],
         className='row'
@@ -137,6 +151,22 @@ app.layout = html.Div([
     html.Div(id='combo-water-data', style={'display': 'none'}),
 ])
 
+@app.callback(
+    Output('cur-pow', 'children'),
+    Input('powell-water-data', 'children'))
+def get_current_volumes(powell_data):
+    powell_data = pd.read_json(powell_data)
+    powell_data.sort_index()
+    powell_current_volume = powell_data.iloc[-1,1]
+    powell_current_volume_date = powell_data.index[-1]
+    cvd = str(powell_current_volume_date)
+    last_v = powell_data.iloc[-1,0]
+
+    print(powell_current_volume)
+
+    return html.Div([
+        html.Div('{}'.format(powell_current_volume)),
+        ]),
 
 @app.callback([
     Output('powell-water-data', 'children'),
