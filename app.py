@@ -154,6 +154,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_pct = combo_current_volume / capacities['Powell Mead Combo']
     combo_last_v = combo_data['Value'][-2]
     combo_tfh_change = combo_current_volume - combo_data['Value'][-2]
+    combo_cy = combo_current_volume - combo_data['Value'][-days]
     print(combo_tfh_change)
 
 
@@ -236,6 +237,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(combo_tfh_change), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(combo_cy), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
