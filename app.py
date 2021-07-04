@@ -106,6 +106,11 @@ app.layout = html.Div([
         ],
             className='one column'
         ),
+        html.Div([
+            html.H6('Year', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
     ],
         className='row'
     ),
@@ -136,6 +141,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_pct = powell_current_volume / capacities['Lake Powell Glen Canyon Dam and Powerplant']
     powell_tfh_change = powell_current_volume - powell_data['Value'][-2]
     powell_cy = powell_current_volume - powell_data['Value'][-days]
+    powell_yr = powell_current_volume - powell_data['Value'][-366]
     print(powell_cy)
 
     mead_data = pd.read_json(mead_data)
@@ -184,6 +190,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(powell_cy), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(powell_yr), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
