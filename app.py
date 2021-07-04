@@ -88,9 +88,14 @@ app.layout = html.Div([
             className='one column'
         ),
         html.Div([
-            html.H6('24 hr chg.', style={'text-align': 'center'})
+            html.H6('24 hr', style={'text-align': 'center'})
         ],
-            className='two columns'
+            className='one column'
+        ),
+        html.Div([
+            html.H6('C.Y.', style={'text-align': 'center'})
+        ],
+            className='one column'
         ),
     ],
         className='row'
@@ -162,7 +167,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             html.Div([
                 html.H6('{:,.0f}'.format(powell_tfh_change), style={'text-align': 'center'})
             ],
-                className='two columns'
+                className='one column'
             ),
         ],
             className='row'
@@ -186,7 +191,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             html.Div([
                 html.H6('{:,.0f}'.format(mead_tfh_change), style={'text-align': 'center'})
             ],
-                className='two columns'
+                className='one column'
             ),
         ],
             className='row'
@@ -210,7 +215,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             html.Div([
                 html.H6('{:,.0f}'.format(combo_tfh_change), style={'text-align': 'center'})
             ],
-                className='two columns'
+                className='one column'
             ),
         ],
             className='row'
