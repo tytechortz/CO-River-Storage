@@ -14,6 +14,15 @@ today = time.strftime("%Y-%m-%d")
 
 capacities = {'Lake Powell Glen Canyon Dam and Powerplant': 24322000, 'Lake Mead Hoover Dam and Powerplant': 26134000, 'FLAMING GORGE RESERVOIR': 3788700, 'NAVAJO RESERVOIR': 1708600, 'BLUE MESA RESERVOIR': 940800, 'Powell Mead Combo': 50456000}
 
+today2 = datetime.now()
+year = datetime.now().year
+# print(year)
+f_date = datetime(year, 1, 1)
+
+# print(today)
+delta = today2 - f_date
+days = delta.days
+
 
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions']=True
@@ -126,6 +135,8 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_last_v = powell_data.iloc[-1,0]
     powell_pct = powell_current_volume / capacities['Lake Powell Glen Canyon Dam and Powerplant']
     powell_tfh_change = powell_current_volume - powell_data['Value'][-2]
+    powell_cy = powell_current_volume - powell_data['Value'][-days]
+    print(powell_cy)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -166,6 +177,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(powell_tfh_change), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(powell_cy), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
