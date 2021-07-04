@@ -12,11 +12,15 @@ from datetime import datetime, date, timedelta
 
 today = time.strftime("%Y-%m-%d")
 
+capacities = {'Lake Powell Glen Canyon Dam and Powerplant': 24322000, 'Lake Mead Hoover Dam and Powerplant': 26134000, 'FLAMING GORGE RESERVOIR': 3788700, 'NAVAJO RESERVOIR': 1708600, 'BLUE MESA RESERVOIR': 940800, 'Powell Mead Combo': 50456000}
+
 
 app = dash.Dash(__name__)
 app.config['suppress_callback_exceptions']=True
 
 server = app.server
+
+
 
 app.layout = html.Div([
     html.Div([
@@ -78,6 +82,11 @@ app.layout = html.Div([
         ],
             className='three columns'
         ),
+        html.Div([
+            html.H6('Pct. Full', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
     ],
         className='row'
     ),
@@ -103,16 +112,19 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_current_volume_date = powell_data.index[-1]
     cvd = str(powell_current_volume_date)
     last_v = powell_data.iloc[-1,0]
+    powell_pct = powell_current_volume / capacities['Lake Powell Glen Canyon Dam and Powerplant']
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
     mead_current_volume = mead_data.iloc[-0,-0]
     mead_current_volume = mead_data['Value'].iloc[-1]
+    mead_pct = mead_current_volume / capacities['Lake Mead Hoover Dam and Powerplant']
 
     combo_data = pd.read_json(combo_data)
     print(combo_data)
     combo_current_volume = combo_data['Value'][-1]
     combo_current_volume_date = combo_data.index[-1]
+    combo_pct = combo_current_volume / capacities['Powell Mead Combo']
 
 
     print(powell_current_volume)
@@ -125,7 +137,12 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 className='one column'
             ),
             html.Div([
-                html.H6('{:,.0f}'.format(powell_current_volume), style={'text-align': 'left'})
+                html.H6('{:,.0f}'.format(powell_current_volume), style={'text-align': 'right'})
+            ],
+                className='two columns'
+            ),
+            html.Div([
+                html.H6('{0:.0%}'.format(powell_pct), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
@@ -139,7 +156,12 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 className='one column'
             ),
             html.Div([
-                html.H6('{:,.0f}'.format(mead_current_volume), style={'text-align': 'left'})
+                html.H6('{:,.0f}'.format(mead_current_volume), style={'text-align': 'right'})
+            ],
+                className='two columns'
+            ),
+            html.Div([
+                html.H6('{0:.0%}'.format(mead_pct), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
@@ -153,7 +175,12 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 className='one column'
             ),
             html.Div([
-                html.H6('{:,.0f}'.format(combo_current_volume), style={'text-align': 'left'})
+                html.H6('{:,.0f}'.format(combo_current_volume), style={'text-align': 'right'})
+            ],
+                className='two columns'
+            ),
+            html.Div([
+                html.H6('{0:.0%}'.format(combo_pct), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
