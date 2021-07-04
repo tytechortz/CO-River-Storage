@@ -145,6 +145,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     mead_pct = mead_current_volume / capacities['Lake Mead Hoover Dam and Powerplant']
     mead_last_v = mead_data.iloc[-1,0]
     mead_tfh_change = mead_current_volume - mead_data['Value'][-2]
+    mead_cy = mead_current_volume - mead_data['Value'][-days]
 
     combo_data = pd.read_json(combo_data)
     print(combo_data)
@@ -206,6 +207,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(mead_tfh_change), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(mead_cy), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
