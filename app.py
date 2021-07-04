@@ -18,57 +18,6 @@ app.config['suppress_callback_exceptions']=True
 
 server = app.server
 
-# powell_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=509&before=' + today + '&after=2000-01-01&filename=Lake%20Powell%20Glen%20Canyon%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20'
-
-# with requests.Session() as s:
-
-#     powell_download = s.get(powell_data)
-    
-#     powell_decoded_content = powell_download.content.decode('utf-8')
-
-#     crp = csv.reader(powell_decoded_content.splitlines(), delimiter=',')
-    
-    
-#     for i in range(9): next(crp)
-#     df_powell_water = pd.DataFrame(crp)
-    
-#     df_powell_water = df_powell_water.drop(df_powell_water.columns[[1,3,4,5]], axis=1)
-#     df_powell_water.columns = ["Site", "Value", "Date"]
-
-#     df_powell_water = df_powell_water[1:]
-    
-#     df_powell_water['power level'] = 6124000
-
-#     df_powell_water = df_powell_water.set_index("Date")
-#     df_powell_water = df_powell_water.sort_index()
-    
-# powell_df = df_powell_water.drop(df_powell_water.index[0])
-
-# print(powell_df.tail(50))
-
-
-# powell_fig = go.Figure()
-# powell_fig.add_trace(go.Scatter(
-#     y = powell_df['Value'],
-#     x = powell_df.index,
-#     name='Water Level',
-#     mode='lines+markers'
-# ))
-# powell_fig.add_trace(go.Scatter(
-#     y = powell_df['power level'],
-#     x = powell_df.index,
-#     name = 'Power level'
-# )),
-
-# powell_fig.update_layout(
-#     height =400,
-#     title = 'Lake Powell',
-#     yaxis = {'title':'Volume (AF)'},
-#     paper_bgcolor="#1f2630",
-#     plot_bgcolor="#1f2630",
-#     font=dict(color="#2cfec1"),
-# )
-
 app.layout = html.Div([
     html.Div([
         html.H2(
@@ -125,24 +74,15 @@ app.layout = html.Div([
     ),
     html.Div([
         html.Div([
-            html.H6('Current Storage', style={'text-align': 'center'})
+            html.H6('Current Storage - AF', style={'text-align': 'center'})
         ],
-            className='four columns'
+            className='three columns'
         ),
     ],
         className='row'
     ),
     html.Div([
-        html.Div([
-            html.H6('Powell', style={'text-align': 'center'})
-        ],
-            className='two columns'
-        ),
-        html.Div([
-            html.Div(id='cur-pow', style={'text-align': 'center'})
-        ],
-            className='one column'
-        ),
+        html.Div(id='cur-levels')
     ],
         className='row'
     ),
@@ -152,9 +92,11 @@ app.layout = html.Div([
 ])
 
 @app.callback(
-    Output('cur-pow', 'children'),
-    Input('powell-water-data', 'children'))
-def get_current_volumes(powell_data):
+    Output('cur-levels', 'children'),
+    [Input('powell-water-data', 'children'),
+    Input('mead-water-data', 'children'),
+    Input('combo-water-data', 'children')])
+def get_current_volumes(powell_data, mead_data, combo_data):
     powell_data = pd.read_json(powell_data)
     powell_data.sort_index()
     powell_current_volume = powell_data.iloc[-1,1]
@@ -162,11 +104,35 @@ def get_current_volumes(powell_data):
     cvd = str(powell_current_volume_date)
     last_v = powell_data.iloc[-1,0]
 
+    mead_data = pd.read_json(mead_data)
+    mead_data.sort_index()
+    mead_current_volume = mead_data.iloc[-0,-0]
+    mead_current_volume = mead_data['Value'].iloc[-1]
+
+    combo_data = pd.read_json(combo_data)
+    print(combo_data)
+    combo_current_volume = combo_data['Value'][-1]
+    combo_current_volume_date = combo_data.index[-1]
+
+
     print(powell_current_volume)
 
     return html.Div([
-        html.Div('{}'.format(powell_current_volume)),
-        ]),
+        html.Div([
+            html.Div([
+                html.H6('Powell', style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(powell_current_volume), style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+        ],
+            className='row'
+        ),
+    ]),
 
 @app.callback([
     Output('powell-water-data', 'children'),
