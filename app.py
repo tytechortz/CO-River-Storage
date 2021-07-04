@@ -132,6 +132,34 @@ def get_current_volumes(powell_data, mead_data, combo_data):
         ],
             className='row'
         ),
+        html.Div([
+            html.Div([
+                html.H6('Mead', style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(mead_current_volume), style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+        ],
+            className='row'
+        ),
+        html.Div([
+            html.Div([
+                html.H6('Combined', style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(combo_current_volume), style={'text-align': 'left'})
+            ],
+                className='one column'
+            ),
+        ],
+            className='row'
+        ),
     ]),
 
 @app.callback([
