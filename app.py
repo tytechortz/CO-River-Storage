@@ -119,6 +119,13 @@ app.layout = html.Div([
     ],
         className='row'
     ),
+    html.Div([
+        dcc.Graph(
+            id='annual-levels'
+        )
+    ],
+        className='row'
+    ),
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
@@ -162,6 +169,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_last_v = combo_data['Value'][-2]
     combo_tfh_change = combo_current_volume - combo_data['Value'][-2]
     combo_cy = combo_current_volume - combo_data['Value'][-days]
+    combo_yr = combo_current_volume - combo_data['Value'][-366]
     print(combo_tfh_change)
 
 
@@ -259,6 +267,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(combo_cy), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(combo_yr), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
