@@ -122,7 +122,14 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             dcc.Graph(
-                id='powell-annual-levels'
+                id='powell-annual-changes'
+            )
+        ],
+            className='four columns'
+        ),
+        html.Div([
+            dcc.Graph(
+                id='mead-annual-changes'
             )
         ],
             className='four columns'
@@ -134,12 +141,14 @@ app.layout = html.Div([
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
+    html.Div(id='powell-annual-change', style={'display': 'none'}),
 ])
 
 
 
-@app.callback(
+@app.callback([
     Output('cur-levels', 'children'),
+    Output('powell-annual-change', 'children')],
     [Input('powell-water-data', 'children'),
     Input('mead-water-data', 'children'),
     Input('combo-water-data', 'children')])
@@ -154,11 +163,12 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_tfh_change = powell_current_volume - powell_data['Value'][-2]
     powell_cy = powell_current_volume - powell_data['Value'][-days]
     powell_yr = powell_current_volume - powell_data['Value'][-366]
-    print(powell_data)
+    # print(powell_data)
     powell_last = powell_data.groupby(powell_data.index.strftime('%Y')).tail(1)
-    print(powell_last)
-    powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
-    print(powell_last)
+    # print(powell_last)
+    # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
+    powell_last['diff'] = powell_last['Value'].diff()
+    # print(powell_last)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -287,7 +297,40 @@ def get_current_volumes(powell_data, mead_data, combo_data):
         ],
             className='row'
         ),
-    ]),
+    ]), powell_last.to_json()
+
+@app.callback(
+    Output('powell-annual-changes', 'figure'),
+    Input('powell-annual-change', 'children'))
+def change_graphs(powell_data):
+    df_powell = pd.read_json(powell_data)
+    print(df_powell)
+    # df_powell['diff'] = (df_powell['diff'] !='n').astype(int)
+
+    mead_traces = []
+    powell_traces = []
+    combo_traces = []
+
+    # data = powell_traces.sort_index()
+
+    powell_traces.append(go.Bar(
+        y = df_powell['diff'],
+        x = df_powell.index,
+    )),
+
+    
+
+    powell_layout = go.Layout(
+        height =400,
+        title = 'Lake Powell',
+        yaxis = {'title':'Volume (AF)'},
+        paper_bgcolor="#1f2630",
+        plot_bgcolor="#1f2630",
+        font=dict(color="#2cfec1"),
+    )
+
+    return {'data': powell_traces, 'layout': powell_layout}
+
 
 @app.callback([
     Output('powell-water-data', 'children'),
