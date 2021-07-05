@@ -120,9 +120,14 @@ app.layout = html.Div([
         className='row'
     ),
     html.Div([
-        dcc.Graph(
-            id='annual-levels'
-        )
+        html.Div([
+            dcc.Graph(
+                id='powell-annual-levels'
+            )
+        ],
+            className='four columns'
+        ),
+        
     ],
         className='row'
     ),
@@ -149,7 +154,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_tfh_change = powell_current_volume - powell_data['Value'][-2]
     powell_cy = powell_current_volume - powell_data['Value'][-days]
     powell_yr = powell_current_volume - powell_data['Value'][-366]
-    print(powell_cy)
+    print(powell_data)
+    powell_last = powell_data.groupby(powell_data.index.strftime('%Y')).tail(1)
+    print(powell_last)
+    powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
+    print(powell_last)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -162,7 +171,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     mead_yr = mead_current_volume - mead_data['Value'][-366]
 
     combo_data = pd.read_json(combo_data)
-    print(combo_data)
+    # print(combo_data)
     combo_current_volume = combo_data['Value'][-1]
     combo_current_volume_date = combo_data.index[-1]
     combo_pct = combo_current_volume / capacities['Powell Mead Combo']
@@ -170,10 +179,10 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_tfh_change = combo_current_volume - combo_data['Value'][-2]
     combo_cy = combo_current_volume - combo_data['Value'][-days]
     combo_yr = combo_current_volume - combo_data['Value'][-366]
-    print(combo_tfh_change)
+    # print(combo_tfh_change)
 
 
-    print(powell_current_volume)
+    # print(powell_current_volume)
 
     return html.Div([
         html.Div([
@@ -336,7 +345,7 @@ def clean_powell_data(lake):
 
         df_mead_water = df_mead_water.set_index("Date")
         df_mead_water = df_mead_water.sort_index()
-        print(df_mead_water)
+        # print(df_mead_water)
         
     mead_df = df_mead_water.drop(df_mead_water.index[0])
 
@@ -353,7 +362,7 @@ def clean_powell_data(lake):
     
     # df_total = pd.merge(df_mead_water, df_powell_water, how='inner', left_index=True, right_index=True)
     df_total = pd.merge(mead_df, powell_df, how='inner', left_index=True, right_index=True)
-    print(df_total)
+    # print(df_total)
     df_total.rename(columns={'Date_x':'Date'}, inplace=True)
     
     df_total['Value_x'] = df_total['Value_x'].astype(int)
