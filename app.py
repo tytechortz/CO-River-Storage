@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
+import numpy as np
 from dash.dependencies import Input, Output, State
 import time
 import requests
@@ -168,7 +169,8 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     # print(powell_last)
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     powell_last['diff'] = powell_last['Value'].diff()
-    # print(powell_last)
+    powell_last['color'] = np.where(powell_last['diff'] < 0, 'red', 'green')
+    print(powell_last)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -316,6 +318,7 @@ def change_graphs(powell_data):
     powell_traces.append(go.Bar(
         y = df_powell['diff'],
         x = df_powell.index,
+        marker_color = df_powell['color']
     )),
 
     
