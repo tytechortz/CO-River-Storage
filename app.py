@@ -143,13 +143,15 @@ app.layout = html.Div([
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
     html.Div(id='powell-annual-change', style={'display': 'none'}),
+    html.Div(id='mead-annual-change', style={'display': 'none'}),
 ])
 
 
 
 @app.callback([
     Output('cur-levels', 'children'),
-    Output('powell-annual-change', 'children')],
+    Output('powell-annual-change', 'children'),
+    Output('mead-annual-change', 'children')],
     [Input('powell-water-data', 'children'),
     Input('mead-water-data', 'children'),
     Input('combo-water-data', 'children')])
@@ -170,7 +172,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     powell_last['diff'] = powell_last['Value'].diff()
     powell_last['color'] = np.where(powell_last['diff'] < 0, 'red', 'green')
-    print(powell_last)
+    # print(powell_last)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -181,7 +183,12 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     mead_tfh_change = mead_current_volume - mead_data['Value'][-2]
     mead_cy = mead_current_volume - mead_data['Value'][-days]
     mead_yr = mead_current_volume - mead_data['Value'][-366]
-
+    mead_last = mead_data.groupby(mead_data.index.strftime('%Y')).tail(1)
+    
+    # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
+    mead_last['diff'] = mead_last['Value'].diff()
+    mead_last['color'] = np.where(mead_last['diff'] < 0, 'red', 'green')
+    print(mead_last)
     combo_data = pd.read_json(combo_data)
     # print(combo_data)
     combo_current_volume = combo_data['Value'][-1]
@@ -299,13 +306,16 @@ def get_current_volumes(powell_data, mead_data, combo_data):
         ],
             className='row'
         ),
-    ]), powell_last.to_json()
+    ]), powell_last.to_json(), mead_last.to_json()
 
-@app.callback(
+@app.callback([
     Output('powell-annual-changes', 'figure'),
-    Input('powell-annual-change', 'children'))
-def change_graphs(powell_data):
+    Output('mead-annual-changes', 'figure')],
+    [Input('powell-annual-change', 'children'),
+    Input('mead-annual-change', 'children')])
+def change_graphs(powell_data, mead_data):
     df_powell = pd.read_json(powell_data)
+    df_mead = pd.read_json(mead_data)
     print(df_powell)
     # df_powell['diff'] = (df_powell['diff'] !='n').astype(int)
 
@@ -321,7 +331,11 @@ def change_graphs(powell_data):
         marker_color = df_powell['color']
     )),
 
-    
+    mead_traces.append(go.Bar(
+        y = df_mead['diff'],
+        x = df_mead.index,
+        marker_color = df_mead['color']
+    )),
 
     powell_layout = go.Layout(
         height =400,
@@ -332,7 +346,16 @@ def change_graphs(powell_data):
         font=dict(color="#2cfec1"),
     )
 
-    return {'data': powell_traces, 'layout': powell_layout}
+    mead_layout = go.Layout(
+        height =400,
+        title = 'Lake Mead',
+        yaxis = {'title':'Volume (AF)'},
+        paper_bgcolor="#1f2630",
+        plot_bgcolor="#1f2630",
+        font=dict(color="#2cfec1"),
+    )
+
+    return {'data': powell_traces, 'layout': powell_layout}, {'data': mead_traces, 'layout': mead_layout}
 
 
 @app.callback([
