@@ -112,6 +112,11 @@ app.layout = html.Div([
         ],
             className='one column'
         ),
+        html.Div([
+            html.H6('Rec Low', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
     ],
         className='row'
     ),
@@ -155,7 +160,6 @@ app.layout = html.Div([
 ])
 
 
-
 @app.callback([
     Output('cur-levels', 'children'),
     Output('powell-annual-change', 'children'),
@@ -182,6 +186,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_last['diff'] = powell_last['Value'].diff()
     powell_last['color'] = np.where(powell_last['diff'] < 0, 'red', 'green')
     # print(powell_last)
+    powell_annual_min = powell_data.resample('Y').min()
+    powell_min_twok = powell_annual_min[(powell_annual_min.index.year > 1999)]
+    powell_rec_low = powell_min_twok['Value'].min()
+    powell_dif_rl = powell_data['Value'].iloc[-1] - powell_rec_low
+    print(powell_rec_low)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -197,7 +206,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     mead_last['diff'] = mead_last['Value'].diff()
     mead_last['color'] = np.where(mead_last['diff'] < 0, 'red', 'green')
-    print(mead_last)
+    # print(mead_last)
     combo_data = pd.read_json(combo_data)
     # print(combo_data)
     combo_current_volume = combo_data['Value'][-1]
@@ -244,6 +253,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(powell_yr), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(powell_rec_low), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
