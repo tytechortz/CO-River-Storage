@@ -202,6 +202,10 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     mead_cy = mead_current_volume - mead_data['Value'][-days]
     mead_yr = mead_current_volume - mead_data['Value'][-366]
     mead_last = mead_data.groupby(mead_data.index.strftime('%Y')).tail(1)
+    mead_annual_min = mead_data.resample('Y').min()
+    mead_min_twok = mead_annual_min[(mead_annual_min.index.year > 1999)]
+    mead_rec_low = mead_min_twok['Value'].min()
+    mead_dif_rl = mead_data['Value'].iloc[-1] - mead_rec_low
     
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     mead_last['diff'] = mead_last['Value'].diff()
@@ -292,6 +296,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(mead_yr), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(mead_rec_low), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
