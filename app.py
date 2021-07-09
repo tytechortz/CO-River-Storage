@@ -117,6 +117,11 @@ app.layout = html.Div([
         ],
             className='one column'
         ),
+        html.Div([
+            html.H6('Diff', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
     ],
         className='row'
     ),
@@ -190,6 +195,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_min_twok = powell_annual_min[(powell_annual_min.index.year > 1999)]
     powell_rec_low = powell_min_twok['Value'].min()
     powell_dif_rl = powell_data['Value'].iloc[-1] - powell_rec_low
+    # powell_rec_diff = powell_current_volume - powel
     print(powell_rec_low)
 
     mead_data = pd.read_json(mead_data)
@@ -266,6 +272,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(powell_rec_low), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(powell_dif_rl), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
