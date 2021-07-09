@@ -224,6 +224,10 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_last = combo_data.groupby(combo_data.index.strftime('%Y')).tail(1)
     combo_last['diff'] = combo_last['Value'].diff()
     combo_last['color'] = np.where(combo_last['diff'] < 0, 'red', 'green')
+    combo_annual_min = combo_data.resample('Y').min()
+    combo_min_twok = combo_annual_min[(combo_annual_min.index.year > 1999)]
+    combo_rec_low = combo_min_twok['Value'].min()
+    combo_dif_rl = combo_data['Value'].iloc[-1] - combo_rec_low
 
 
     # print(powell_current_volume)
@@ -335,6 +339,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(combo_yr), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(combo_rec_low), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
