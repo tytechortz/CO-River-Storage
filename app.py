@@ -188,6 +188,7 @@ app.layout = html.Div([
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
     html.Div(id='blue-mesa-water-data', style={'display': 'none'}),
+    html.Div(id='navajo-water-data', style={'display': 'none'}),
     html.Div(id='powell-annual-change', style={'display': 'none'}),
     html.Div(id='mead-annual-change', style={'display': 'none'}),
     html.Div(id='combo-annual-change', style={'display': 'none'}),
@@ -474,7 +475,8 @@ def change_graphs(powell_data, mead_data, combo_data):
     Output('powell-water-data', 'children'),
     Output('mead-water-data', 'children'),
     Output('combo-water-data', 'children'),
-    Output('blue-mesa-water-data', 'children')],
+    Output('blue-mesa-water-data', 'children'),
+    Output('navajo-water-data', 'children'),],
     [Input('lake', 'value')])
 def clean_powell_data(lake):
     
@@ -483,6 +485,8 @@ def clean_powell_data(lake):
     mead_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=6124&before=' + today + '&after=1999-12-30&filename=Lake%20Mead%20Hoover%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1937-05-28%20-%202020-11-30)&order=ASC'
 
     blue_mesa_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=76&before=' + today + '&after=1999-12-30&filename=Blue%20Mesa%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(2000-01-01%20-%202021-07-14)&order=ASC'
+
+    navajo_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=613&before=' + today + '&after=1999-12-30&filename=Navajo%20Reservoir%20and%20Dam%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1999-12-31%20-%202021-07-14)&order=ASC'
 
     # if lake == 'lakepowell':
 
@@ -554,6 +558,27 @@ def clean_powell_data(lake):
         
     blue_mesa_df = df_bm_water.drop(df_bm_water.index[0])
 
+    with requests.Session() as s:
+        navajo_download = s.get(navajo_data)
+
+        navajo_decoded_content = navajo_download.content.decode('utf-8')
+
+        crm = csv.reader(navajo_decoded_content.splitlines(), delimiter=',')
+
+        for i in range(9): next(crm)
+        df_nav_water = pd.DataFrame(crm)
+        df_nav_water = df_nav_water.drop(df_nav_water.columns[[1,3,4,5]], axis=1)
+        df_nav_water.columns = ["Site", "Value", "Date"]
+
+        # df_bm_water = df_bm_water[1:]
+    
+
+        df_nav_water = df_nav_water.set_index("Date")
+        df_nav_water = df_nav_water.sort_index()
+        # print(df_bm_water)
+        
+    navajo_df = df_nav_water.drop(df_nav_water.index[0])
+
     # print(mead_df.head())
     # print(powell_df.head())
 
@@ -578,7 +603,7 @@ def clean_powell_data(lake):
     combo_df = df_total
     # print(combo_df.head())
 
-    return powell_df.to_json(), mead_df.to_json(), combo_df.to_json(), blue_mesa_df.to_json()
+    return powell_df.to_json(), mead_df.to_json(), combo_df.to_json(), blue_mesa_df.to_json(), navajo_df.to_json()
 
 def powell_level():
     powell_traces = []
@@ -608,23 +633,27 @@ def powell_level():
     Output('powell-levels', 'figure'),
     Output('mead-levels', 'figure'),
     Output('combo-levels', 'figure'),
-    Output('bm-levels', 'figure')],
+    Output('bm-levels', 'figure'),
+    Output('navajo-levels', 'figure')],
     [Input('lake', 'value'),
     Input('powell-water-data', 'children'),
     Input('mead-water-data', 'children'),
     Input('combo-water-data', 'children'),
-    Input('blue-mesa-water-data', 'children')])
-def lake_graph(lake, powell_data, mead_data, combo_data, bm_data):
+    Input('blue-mesa-water-data', 'children'),
+    Input('navajo-water-data', 'children')])
+def lake_graph(lake, powell_data, mead_data, combo_data, bm_data, nav_data):
     powell_df = pd.read_json(powell_data)
     mead_df = pd.read_json(mead_data)
     combo_df = pd.read_json(combo_data)
     bm_df = pd.read_json(bm_data)
-    print(bm_df)
+    nav_df = pd.read_json(nav_data)
+    print(nav_df)
 
     mead_traces = []
     powell_traces = []
     combo_traces = []
     bm_traces = []
+    nav_traces = []
 
     # if lake == 'hdmlc':
       
@@ -659,6 +688,11 @@ def lake_graph(lake, powell_data, mead_data, combo_data, bm_data):
     bm_traces.append(go.Scatter(
         y = bm_df['Value'],
         x = bm_df.index,
+    ))
+
+    nav_traces.append(go.Scatter(
+        y = nav_df['Value'],
+        x = nav_df.index,
     ))
     # elif lake == 'combo':
     #     title = 'Lake Powell and Lake Mead'
@@ -704,7 +738,16 @@ def lake_graph(lake, powell_data, mead_data, combo_data, bm_data):
         font=dict(color="#2cfec1"),
     )
 
-    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}, {'data': bm_traces, 'layout': bm_layout}
+    nav_layout = go.Layout(
+        height =400,
+        title = 'Navajo Storage',
+        yaxis = {'title':'Volume (AF)'},
+        paper_bgcolor="#1f2630",
+        plot_bgcolor="#1f2630",
+        font=dict(color="#2cfec1"),
+    )
+
+    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}, {'data': bm_traces, 'layout': bm_layout}, {'data': nav_traces, 'layout': nav_layout}
 
 if __name__ == '__main__':
     app.run_server(debug=True)
