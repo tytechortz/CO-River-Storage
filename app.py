@@ -159,6 +159,7 @@ app.layout = html.Div([
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
+    html.Div(id='blue-mesa-water-data', style={'display': 'none'}),
     html.Div(id='powell-annual-change', style={'display': 'none'}),
     html.Div(id='mead-annual-change', style={'display': 'none'}),
     html.Div(id='combo-annual-change', style={'display': 'none'}),
@@ -444,13 +445,16 @@ def change_graphs(powell_data, mead_data, combo_data):
 @app.callback([
     Output('powell-water-data', 'children'),
     Output('mead-water-data', 'children'),
-    Output('combo-water-data', 'children')],
+    Output('combo-water-data', 'children'),
+    Output('blue-mesa-water-data', 'children')],
     [Input('lake', 'value')])
 def clean_powell_data(lake):
     
     powell_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=509&before=' + today + '&after=1999-12-29&filename=Lake%20Powell%20Glen%20Canyon%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20'
 
     mead_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=6124&before=' + today + '&after=1999-12-30&filename=Lake%20Mead%20Hoover%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1937-05-28%20-%202020-11-30)&order=ASC'
+
+    blue_mesa_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=76&before=' + today + '&after=1999-12-31&filename=Blue%20Mesa%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(2000-01-01%20-%202021-07-14)&order=ASC'
 
     # if lake == 'lakepowell':
 
@@ -501,6 +505,27 @@ def clean_powell_data(lake):
         
     mead_df = df_mead_water.drop(df_mead_water.index[0])
 
+    with requests.Session() as s:
+        blue_mesa_download = s.get(blue_mesa_data)
+
+        blue_mesa_decoded_content = blue_mesa_download.content.decode('utf-8')
+
+        crm = csv.reader(blue_mesa_decoded_content.splitlines(), delimiter=',')
+
+        for i in range(9): next(crm)
+        df_bm_water = pd.DataFrame(crm)
+        df_bm_water = df_bm_water.drop(df_bm_water.columns[[1,3,4,5]], axis=1)
+        df_bm_water.columns = ["Site", "Value", "Date"]
+
+        # df_bm_water = df_bm_water[1:]
+    
+
+        df_bm_water = df_bm_water.set_index("Date")
+        df_bm_water = df_bm_water.sort_index()
+        print(df_bm_water)
+        
+    blue_mesa_df = df_bm_water.drop(df_bm_water.index[0])
+
     # print(mead_df.head())
     # print(powell_df.head())
 
@@ -525,7 +550,7 @@ def clean_powell_data(lake):
     combo_df = df_total
     # print(combo_df.head())
 
-    return powell_df.to_json(), mead_df.to_json(), combo_df.to_json()
+    return powell_df.to_json(), mead_df.to_json(), combo_df.to_json(), blue_mesa_df.to_json()
 
 def powell_level():
     powell_traces = []
@@ -635,4 +660,4 @@ def lake_graph(lake, powell_data, mead_data, combo_data):
     return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
