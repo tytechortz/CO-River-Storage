@@ -244,10 +244,14 @@ app.layout = html.Div([
     [Input('blue-mesa-water-data', 'children'),
     Input('navajo-water-data', 'children'),
     Input('fg-water-data', 'children')])
-def get_current_volumes(bm_data, nav_data, fg_data):
+def get_current_volumes_upper(bm_data, nav_data, fg_data):
     bm_data = pd.read_json(bm_data)
     bm_data.sort_index()
     bm_current_volume = bm_data.iloc[-1,1]
+
+    nav_data = pd.read_json(nav_data)
+    nav_data.sort_index()
+    nav_current_volume = nav_data.iloc[-1,1]
 
     return html.Div([
         html.Div([
@@ -255,6 +259,25 @@ def get_current_volumes(bm_data, nav_data, fg_data):
                 html.H6('Blue Mesa', style={'text-align': 'left'})
             ],
                 className = 'two columns'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(bm_current_volume), style={'text-align': 'right'})
+            ],
+                className='one column'
+            ),
+        ],
+            className = 'row'
+        ),
+        html.Div([
+            html.Div([
+                html.H6('Navajo', style={'text-align': 'left'})
+            ],
+                className = 'two columns'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(nav_current_volume), style={'text-align': 'right'})
+            ],
+                className='one column'
             ),
         ],
             className = 'row'
@@ -555,7 +578,7 @@ def clean_powell_data(lake):
 
     navajo_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=613&before=' + today + '&after=1999-12-30&filename=Navajo%20Reservoir%20and%20Dam%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1999-12-31%20-%202021-07-14)&order=ASC'
 
-    fg_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=337&before=' + today + '&after=1999-12-31&filename=Flaming%20Gorge%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1999-12-31%20-%202021-07-15)&order=ASC'
+    fg_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=337&before=' + today + '&after=1999-12-30&filename=Flaming%20Gorge%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1999-12-31%20-%202021-07-15)&order=ASC'
 
     # if lake == 'lakepowell':
 
