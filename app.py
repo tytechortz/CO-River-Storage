@@ -156,6 +156,34 @@ app.layout = html.Div([
     ],
         className='row'
     ),
+    html.Div([
+        html.Div([
+            dcc.Graph(
+                id='bm-levels',
+            ),
+        ],
+            className='four columns'
+        ),
+        html.Div([
+            dcc.Graph(
+                # figure=powell_fig,
+                id='navajo-levels',
+            ),
+        ],
+            className='four columns'
+        ),
+        html.Div([
+            dcc.Graph(
+                # figure=powell_fig,
+                id='fg-levels',
+            ),
+        ],
+            className='four columns'
+        ),
+
+    ],
+        className='row'
+    ),
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
@@ -385,7 +413,7 @@ def change_graphs(powell_data, mead_data, combo_data):
     df_powell = pd.read_json(powell_data)
     df_mead = pd.read_json(mead_data)
     df_combo = pd.read_json(combo_data)
-    print(df_powell)
+    # print(df_powell)
     # df_powell['diff'] = (df_powell['diff'] !='n').astype(int)
 
     mead_traces = []
@@ -454,7 +482,7 @@ def clean_powell_data(lake):
 
     mead_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=6124&before=' + today + '&after=1999-12-30&filename=Lake%20Mead%20Hoover%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1937-05-28%20-%202020-11-30)&order=ASC'
 
-    blue_mesa_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=76&before=' + today + '&after=1999-12-31&filename=Blue%20Mesa%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(2000-01-01%20-%202021-07-14)&order=ASC'
+    blue_mesa_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=76&before=' + today + '&after=1999-12-30&filename=Blue%20Mesa%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(2000-01-01%20-%202021-07-14)&order=ASC'
 
     # if lake == 'lakepowell':
 
@@ -522,7 +550,7 @@ def clean_powell_data(lake):
 
         df_bm_water = df_bm_water.set_index("Date")
         df_bm_water = df_bm_water.sort_index()
-        print(df_bm_water)
+        # print(df_bm_water)
         
     blue_mesa_df = df_bm_water.drop(df_bm_water.index[0])
 
@@ -579,20 +607,24 @@ def powell_level():
 @app.callback([
     Output('powell-levels', 'figure'),
     Output('mead-levels', 'figure'),
-    Output('combo-levels', 'figure')],
+    Output('combo-levels', 'figure'),
+    Output('bm-levels', 'figure')],
     [Input('lake', 'value'),
     Input('powell-water-data', 'children'),
     Input('mead-water-data', 'children'),
-    Input('combo-water-data', 'children')])
-def lake_graph(lake, powell_data, mead_data, combo_data):
+    Input('combo-water-data', 'children'),
+    Input('blue-mesa-water-data', 'children')])
+def lake_graph(lake, powell_data, mead_data, combo_data, bm_data):
     powell_df = pd.read_json(powell_data)
     mead_df = pd.read_json(mead_data)
     combo_df = pd.read_json(combo_data)
-    # print(combo_df)
+    bm_df = pd.read_json(bm_data)
+    print(bm_df)
 
     mead_traces = []
     powell_traces = []
     combo_traces = []
+    bm_traces = []
 
     # if lake == 'hdmlc':
       
@@ -622,6 +654,11 @@ def lake_graph(lake, powell_data, mead_data, combo_data):
     combo_traces.append(go.Scatter(
         y = combo_df['Value'],
         x = combo_df.index,
+    ))
+
+    bm_traces.append(go.Scatter(
+        y = bm_df['Value'],
+        x = bm_df.index,
     ))
     # elif lake == 'combo':
     #     title = 'Lake Powell and Lake Mead'
@@ -657,7 +694,17 @@ def lake_graph(lake, powell_data, mead_data, combo_data):
         plot_bgcolor="#1f2630",
         font=dict(color="#2cfec1"),
     )
-    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}
+
+    bm_layout = go.Layout(
+        height =400,
+        title = 'Blue Mesa Storage',
+        yaxis = {'title':'Volume (AF)'},
+        paper_bgcolor="#1f2630",
+        plot_bgcolor="#1f2630",
+        font=dict(color="#2cfec1"),
+    )
+
+    return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}, {'data': bm_traces, 'layout': bm_layout}
 
 if __name__ == '__main__':
     app.run_server(debug=True)
