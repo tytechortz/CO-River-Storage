@@ -184,6 +184,50 @@ app.layout = html.Div([
     ],
         className='row'
     ),
+    html.Div([
+        html.Div([
+            html.H6('Current Storage - AF', style={'text-align': 'center'})
+        ],
+            className='three columns'
+        ),
+        html.Div([
+            html.H6('Pct. Full', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+        html.Div([
+            html.H6('24 hr', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+        html.Div([
+            html.H6('C.Y.', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+        html.Div([
+            html.H6('Year', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+        html.Div([
+            html.H6('Rec Low', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+        html.Div([
+            html.H6('Diff', style={'text-align': 'center'})
+        ],
+            className='one column'
+        ),
+    ],
+        className='row'
+    ),
+    html.Div([
+        html.Div(id='upper-cur-levels')
+    ],
+        className='row'
+    ),
     html.Div(id='powell-water-data', style={'display': 'none'}),
     html.Div(id='mead-water-data', style={'display': 'none'}),
     html.Div(id='combo-water-data', style={'display': 'none'}),
@@ -195,6 +239,27 @@ app.layout = html.Div([
     html.Div(id='combo-annual-change', style={'display': 'none'}),
 ])
 
+@app.callback(
+    Output('upper-cur-levels', 'children'),
+    [Input('blue-mesa-water-data', 'children'),
+    Input('navajo-water-data', 'children'),
+    Input('fg-water-data', 'children')])
+def get_current_volumes(bm_data, nav_data, fg_data):
+    bm_data = pd.read_json(bm_data)
+    bm_data.sort_index()
+    bm_current_volume = bm_data.iloc[-1,1]
+
+    return html.Div([
+        html.Div([
+            html.Div([
+                html.H6('Blue Mesa', style={'text-align': 'left'})
+            ],
+                className = 'two columns'
+            ),
+        ],
+            className = 'row'
+        ),
+    ])
 
 @app.callback([
     Output('cur-levels', 'children'),
@@ -630,28 +695,28 @@ def clean_powell_data(lake):
 
     return powell_df.to_json(), mead_df.to_json(), combo_df.to_json(), blue_mesa_df.to_json(), navajo_df.to_json(), fg_df.to_json()
 
-def powell_level():
-    powell_traces = []
-    powell_data = powell_df.sort_index()
-    powell_traces.append(go.Scatter(
-        y = powell_df['Value'],
-        x = powell_df.index,
-        name='Water Level'
-        )),
-    powell_traces.append(go.Scatter(
-        y = powell_df['power level'],
-        x = powell_df.index,
-        name = 'Power level'
-        )),
-    layout = go.Layout(
-        height =400,
-        title = title,
-        yaxis = {'title':'Volume (AF)'},
-        paper_bgcolor="#1f2630",
-        plot_bgcolor="#1f2630",
-        font=dict(color="#2cfec1"),
-    )
-    return {'data': powell_traces, 'layout': layout}
+# def powell_level():
+#     powell_traces = []
+#     powell_data = powell_df.sort_index()
+#     powell_traces.append(go.Scatter(
+#         y = powell_df['Value'],
+#         x = powell_df.index,
+#         name='Water Level'
+#         )),
+#     powell_traces.append(go.Scatter(
+#         y = powell_df['power level'],
+#         x = powell_df.index,
+#         name = 'Power level'
+#         )),
+#     layout = go.Layout(
+#         height =400,
+#         title = title,
+#         yaxis = {'title':'Volume (AF)'},
+#         paper_bgcolor="#1f2630",
+#         plot_bgcolor="#1f2630",
+#         font=dict(color="#2cfec1"),
+#     )
+#     return {'data': powell_traces, 'layout': layout}
 
 
 @app.callback([
