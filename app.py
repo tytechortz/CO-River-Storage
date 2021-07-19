@@ -364,6 +364,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     mead_last['diff'] = mead_last['Value'].diff()
     mead_last['color'] = np.where(mead_last['diff'] < 0, 'red', 'green')
+    mead_rec_low_date = mead_data['Value'].idxmin().strftime('%Y-%m-%d')
    
     combo_data = pd.read_json(combo_data)
     
@@ -475,6 +476,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 html.H6('{:,.0f}'.format(mead_dif_rl), style={'text-align': 'center'})
             ],
                 className='one column'
+            ),
+            html.Div([
+                html.H6('{}'.format(mead_rec_low_date), style={'text-align': 'center'})
+            ],
+                className='two columns'
             ),
         ],
             className='row'
