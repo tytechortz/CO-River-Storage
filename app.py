@@ -17,10 +17,10 @@ capacities = {'Lake Powell Glen Canyon Dam and Powerplant': 24322000, 'Lake Mead
 
 today2 = datetime.now()
 year = datetime.now().year
-# print(year)
+
 f_date = datetime(year, 1, 1)
 
-# print(today)
+
 delta = today2 - f_date
 days = delta.days
 
@@ -122,6 +122,11 @@ app.layout = html.Div([
         ],
             className='one column'
         ),
+        html.Div([
+            html.H6('Rec Low Date', style={'text-align': 'center'})
+        ],
+            className='two columns'
+        ),
     ],
         className='row'
     ),
@@ -220,6 +225,11 @@ app.layout = html.Div([
         ],
             className='one column'
         ),
+        html.Div([
+            html.H6('Rec Low Date', style={'text-align': 'center'})
+        ],
+            className='two columns'
+        ),
     ],
         className='row'
     ),
@@ -253,6 +263,10 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     nav_data.sort_index()
     nav_current_volume = nav_data.iloc[-1,1]
 
+    fg_data = pd.read_json(fg_data)
+    fg_data.sort_index()
+    fg_current_volume = fg_data.iloc[-1,1]
+
     return html.Div([
         html.Div([
             html.Div([
@@ -282,6 +296,20 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
         ],
             className = 'row'
         ),
+        html.Div([
+            html.Div([
+                html.H6('Flaming Gorge', style={'text-align': 'left'})
+            ],
+                className = 'two columns'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(fg_current_volume), style={'text-align': 'right'})
+            ],
+                className='one column'
+            ),
+        ],
+            className = 'row'
+        ),
     ])
 
 @app.callback([
@@ -303,19 +331,20 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     powell_tfh_change = powell_current_volume - powell_data['Value'][-2]
     powell_cy = powell_current_volume - powell_data['Value'][-days]
     powell_yr = powell_current_volume - powell_data['Value'][-366]
-    # print(powell_data)
     powell_last = powell_data.groupby(powell_data.index.strftime('%Y')).tail(1)
-    # print(powell_last)
+   
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     powell_last['diff'] = powell_last['Value'].diff()
     powell_last['color'] = np.where(powell_last['diff'] < 0, 'red', 'green')
-    # print(powell_last)
+   
     powell_annual_min = powell_data.resample('Y').min()
     powell_min_twok = powell_annual_min[(powell_annual_min.index.year > 1999)]
     powell_rec_low = powell_min_twok['Value'].min()
     powell_dif_rl = powell_data['Value'].iloc[-1] - powell_rec_low
     # powell_rec_diff = powell_current_volume - powel
-    print(powell_rec_low)
+    
+    powell_rec_low_date = powell_data['Value'].idxmin().strftime('%Y-%m-%d')
+    print(powell_rec_low_date)
 
     mead_data = pd.read_json(mead_data)
     mead_data.sort_index()
@@ -335,9 +364,9 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     # powell_last['diff'] = powell_last['Value'] - powell_last['Value'].shift(1)
     mead_last['diff'] = mead_last['Value'].diff()
     mead_last['color'] = np.where(mead_last['diff'] < 0, 'red', 'green')
-    # print(mead_last)
+   
     combo_data = pd.read_json(combo_data)
-    # print(combo_data)
+    
     combo_current_volume = combo_data['Value'][-1]
     combo_current_volume_date = combo_data.index[-1]
     combo_pct = combo_current_volume / capacities['Powell Mead Combo']
@@ -345,7 +374,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_tfh_change = combo_current_volume - combo_data['Value'][-2]
     combo_cy = combo_current_volume - combo_data['Value'][-days]
     combo_yr = combo_current_volume - combo_data['Value'][-366]
-    # print(combo_tfh_change)
+   
     combo_last = combo_data.groupby(combo_data.index.strftime('%Y')).tail(1)
     combo_last['diff'] = combo_last['Value'].diff()
     combo_last['color'] = np.where(combo_last['diff'] < 0, 'red', 'green')
@@ -355,7 +384,6 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_dif_rl = combo_data['Value'].iloc[-1] - combo_rec_low
 
 
-    # print(powell_current_volume)
 
     return html.Div([
         html.Div([
@@ -398,6 +426,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 html.H6('{:,.0f}'.format(powell_dif_rl), style={'text-align': 'center'})
             ],
                 className='one column'
+            ),
+            html.Div([
+                html.H6('{}'.format(powell_rec_low_date), style={'text-align': 'center'})
+            ],
+                className='two columns'
             ),
         ],
             className='row'
@@ -503,7 +536,7 @@ def change_graphs(powell_data, mead_data, combo_data):
     df_powell = pd.read_json(powell_data)
     df_mead = pd.read_json(mead_data)
     df_combo = pd.read_json(combo_data)
-    # print(df_powell)
+  
     # df_powell['diff'] = (df_powell['diff'] !='n').astype(int)
 
     mead_traces = []
@@ -625,7 +658,7 @@ def clean_powell_data(lake):
 
         df_mead_water = df_mead_water.set_index("Date")
         df_mead_water = df_mead_water.sort_index()
-        # print(df_mead_water)
+       
         
     mead_df = df_mead_water.drop(df_mead_water.index[0])
 
@@ -646,7 +679,7 @@ def clean_powell_data(lake):
 
         df_bm_water = df_bm_water.set_index("Date")
         df_bm_water = df_bm_water.sort_index()
-        # print(df_bm_water)
+        
         
     blue_mesa_df = df_bm_water.drop(df_bm_water.index[0])
 
@@ -667,7 +700,7 @@ def clean_powell_data(lake):
 
         df_nav_water = df_nav_water.set_index("Date")
         df_nav_water = df_nav_water.sort_index()
-        # print(df_bm_water)
+     
         
     navajo_df = df_nav_water.drop(df_nav_water.index[0])
 
@@ -688,12 +721,10 @@ def clean_powell_data(lake):
 
         df_fg_water = df_fg_water.set_index("Date")
         df_fg_water = df_fg_water.sort_index()
-        # print(df_bm_water)
+       
         
     fg_df = df_fg_water.drop(df_fg_water.index[0])
 
-    # print(mead_df.head())
-    # print(powell_df.head())
 
            
     start_date = date(1963, 6, 29)
@@ -705,7 +736,7 @@ def clean_powell_data(lake):
     
     # df_total = pd.merge(df_mead_water, df_powell_water, how='inner', left_index=True, right_index=True)
     df_total = pd.merge(mead_df, powell_df, how='inner', left_index=True, right_index=True)
-    # print(df_total)
+  
     df_total.rename(columns={'Date_x':'Date'}, inplace=True)
     
     df_total['Value_x'] = df_total['Value_x'].astype(int)
@@ -714,7 +745,7 @@ def clean_powell_data(lake):
     
     # combo_df = df_total.drop(df_total.index[0])
     combo_df = df_total
-    # print(combo_df.head())
+   
 
     return powell_df.to_json(), mead_df.to_json(), combo_df.to_json(), blue_mesa_df.to_json(), navajo_df.to_json(), fg_df.to_json()
 
@@ -763,7 +794,7 @@ def lake_graph(lake, powell_data, mead_data, combo_data, bm_data, nav_data, fg_d
     bm_df = pd.read_json(bm_data)
     nav_df = pd.read_json(nav_data)
     fg_df = pd.read_json(fg_data)
-    print(fg_df)
+    
 
     mead_traces = []
     powell_traces = []
