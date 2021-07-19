@@ -383,7 +383,7 @@ def get_current_volumes(powell_data, mead_data, combo_data):
     combo_min_twok = combo_annual_min[(combo_annual_min.index.year > 1999)]
     combo_rec_low = combo_min_twok['Value'].min()
     combo_dif_rl = combo_data['Value'].iloc[-1] - combo_rec_low
-
+    combo_rec_low_date = combo_data['Value'].idxmin().strftime('%Y-%m-%d')
 
 
     return html.Div([
@@ -525,6 +525,11 @@ def get_current_volumes(powell_data, mead_data, combo_data):
                 html.H6('{:,.0f}'.format(combo_dif_rl), style={'text-align': 'center'})
             ],
                 className='one column'
+            ),
+            html.Div([
+                html.H6('{}'.format(combo_rec_low_date), style={'text-align': 'center'})
+            ],
+                className='two columns'
             ),
         ],
             className='row'
