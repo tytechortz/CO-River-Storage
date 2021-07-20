@@ -260,18 +260,21 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     bm_current_volume = bm_data.iloc[-1,1]
     bm_pct = bm_current_volume / capacities['BLUE MESA RESERVOIR']
     bm_tfh_change = bm_current_volume - bm_data['Value'][-2]
+    bm_cy = bm_current_volume - bm_data['Value'][-days]
 
     nav_data = pd.read_json(nav_data)
     nav_data.sort_index()
     nav_current_volume = nav_data.iloc[-1,1]
     nav_pct = nav_current_volume / capacities['NAVAJO RESERVOIR']
     nav_tfh_change = nav_current_volume - nav_data['Value'][-2]
+    nav_cy = nav_current_volume - nav_data['Value'][-days]
 
     fg_data = pd.read_json(fg_data)
     fg_data.sort_index()
     fg_current_volume = fg_data.iloc[-1,1]
     fg_pct = fg_current_volume / capacities['FLAMING GORGE RESERVOIR']
     fg_tfh_change = fg_current_volume - fg_data['Value'][-2]
+    fg_cy = fg_current_volume - fg_data['Value'][-days]
 
     return html.Div([
         html.Div([
@@ -292,6 +295,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(bm_tfh_change), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(bm_cy), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
@@ -319,6 +327,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ],
                 className='one column'
             ),
+            html.Div([
+                html.H6('{:,.0f}'.format(nav_cy), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
         ],
             className = 'row'
         ),
@@ -340,6 +353,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(fg_tfh_change), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(fg_cy), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
