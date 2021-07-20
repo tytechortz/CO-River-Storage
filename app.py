@@ -271,6 +271,7 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     nav_tfh_change = nav_current_volume - nav_data['Value'][-2]
     nav_cy = nav_current_volume - nav_data['Value'][-days]
     nav_yr = nav_current_volume - nav_data['Value'][-366]
+    nav_rec_low = nav_data['Value'].min()
 
     fg_data = pd.read_json(fg_data)
     fg_data.sort_index()
@@ -279,6 +280,7 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     fg_tfh_change = fg_current_volume - fg_data['Value'][-2]
     fg_cy = fg_current_volume - fg_data['Value'][-days]
     fg_yr = fg_current_volume - fg_data['Value'][-366]
+    fg_rec_low = fg_data['Value'].min()
 
     return html.Div([
         html.Div([
@@ -351,6 +353,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ],
                 className='one column'
             ),
+            html.Div([
+                html.H6('{:,.0f}'.format(nav_rec_low), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
         ],
             className = 'row'
         ),
@@ -382,6 +389,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(fg_yr), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(fg_rec_low), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
