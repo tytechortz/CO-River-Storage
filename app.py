@@ -258,14 +258,17 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     bm_data = pd.read_json(bm_data)
     bm_data.sort_index()
     bm_current_volume = bm_data.iloc[-1,1]
+    bm_pct = bm_current_volume / capacities['BLUE MESA RESERVOIR']
 
     nav_data = pd.read_json(nav_data)
     nav_data.sort_index()
     nav_current_volume = nav_data.iloc[-1,1]
+    nav_pct = nav_current_volume / capacities['NAVAJO RESERVOIR']
 
     fg_data = pd.read_json(fg_data)
     fg_data.sort_index()
     fg_current_volume = fg_data.iloc[-1,1]
+    fg_pct = fg_current_volume / capacities['FLAMING GORGE RESERVOIR']
 
     return html.Div([
         html.Div([
@@ -276,6 +279,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(bm_current_volume), style={'text-align': 'right'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{0:.0%}'.format(bm_pct), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
@@ -293,6 +301,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ],
                 className='one column'
             ),
+            html.Div([
+                html.H6('{0:.0%}'.format(nav_pct), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
         ],
             className = 'row'
         ),
@@ -304,6 +317,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{:,.0f}'.format(fg_current_volume), style={'text-align': 'right'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{0:.0%}'.format(fg_pct), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
@@ -923,4 +941,4 @@ def lake_graph(lake, powell_data, mead_data, combo_data, bm_data, nav_data, fg_d
     return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}, {'data': bm_traces, 'layout': bm_layout}, {'data': nav_traces, 'layout': nav_layout}, {'data': fg_traces, 'layout': fg_layout}
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
