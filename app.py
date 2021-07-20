@@ -259,6 +259,7 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
     bm_data.sort_index()
     bm_current_volume = bm_data.iloc[-1,1]
     bm_pct = bm_current_volume / capacities['BLUE MESA RESERVOIR']
+    bm_tfh_change = bm_current_volume - bm_data['Value'][-2]
 
     nav_data = pd.read_json(nav_data)
     nav_data.sort_index()
@@ -284,6 +285,11 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
             ),
             html.Div([
                 html.H6('{0:.0%}'.format(bm_pct), style={'text-align': 'center'})
+            ],
+                className='one column'
+            ),
+            html.Div([
+                html.H6('{:,.0f}'.format(bm_tfh_change), style={'text-align': 'center'})
             ],
                 className='one column'
             ),
