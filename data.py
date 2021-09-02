@@ -6,7 +6,7 @@ import pandas as pd
 
 today = time.strftime("%Y-%m-%d")
 
-
+# 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=509&before=2021-09-01&after=2000-01-01&filename=Lake%20Powell%20Glen%20Canyon%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20'
 powell_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=509&before=' + today + '&after=2000-01-01&filename=Lake%20Powell%20Glen%20Canyon%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20'
 # print(powell_data)
 

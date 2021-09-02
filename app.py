@@ -413,6 +413,7 @@ def get_current_volumes_upper(bm_data, nav_data, fg_data):
 def get_current_volumes(powell_data, mead_data, combo_data):
     powell_data = pd.read_json(powell_data)
     powell_data.sort_index()
+    print(powell_data)
     powell_current_volume = powell_data.iloc[-1,1]
     powell_current_volume_date = powell_data.index[-1]
     cvd = str(powell_current_volume_date)
@@ -715,7 +716,7 @@ def clean_powell_data(lake):
     fg_data = 'https://data.usbr.gov/rise/api/result/download?type=csv&itemId=337&before=' + today + '&after=1999-12-30&filename=Flaming%20Gorge%20Reservoir%20Dam%20and%20Powerplant%20Daily%20Lake%2FReservoir%20Storage-af%20Time%20Series%20Data%20(1999-12-31%20-%202021-07-15)&order=ASC'
 
     # if lake == 'lakepowell':
-
+    
     with requests.Session() as s:
 
         powell_download = s.get(powell_data)
@@ -728,7 +729,7 @@ def clean_powell_data(lake):
         for i in range(9): next(crp)
         df_powell_water = pd.DataFrame(crp)
         
-        df_powell_water = df_powell_water.drop(df_powell_water.columns[[1,3,4,5]], axis=1)
+        df_powell_water = df_powell_water.drop(df_powell_water.columns[[1,3,4,5,7,8]], axis=1)
         df_powell_water.columns = ["Site", "Value", "Date"]
     
         df_powell_water = df_powell_water[1:]
@@ -737,6 +738,7 @@ def clean_powell_data(lake):
 
         df_powell_water = df_powell_water.set_index("Date")
         df_powell_water = df_powell_water.sort_index()
+        print(df_powell_water)
     
     powell_df = df_powell_water.drop(df_powell_water.index[0])
 
@@ -749,7 +751,7 @@ def clean_powell_data(lake):
 
         for i in range(9): next(crm)
         df_mead_water = pd.DataFrame(crm)
-        df_mead_water = df_mead_water.drop(df_mead_water.columns[[1,3,4,5]], axis=1)
+        df_mead_water = df_mead_water.drop(df_mead_water.columns[[1,3,4,5,7,8]], axis=1)
         df_mead_water.columns = ["Site", "Value", "Date"]
     
         df_mead_water['1090'] = 10857000
@@ -772,7 +774,7 @@ def clean_powell_data(lake):
 
         for i in range(9): next(crm)
         df_bm_water = pd.DataFrame(crm)
-        df_bm_water = df_bm_water.drop(df_bm_water.columns[[1,3,4,5]], axis=1)
+        df_bm_water = df_bm_water.drop(df_bm_water.columns[[1,3,4,5,7,8]], axis=1)
         df_bm_water.columns = ["Site", "Value", "Date"]
 
         # df_bm_water = df_bm_water[1:]
@@ -793,7 +795,7 @@ def clean_powell_data(lake):
 
         for i in range(9): next(crm)
         df_nav_water = pd.DataFrame(crm)
-        df_nav_water = df_nav_water.drop(df_nav_water.columns[[1,3,4,5]], axis=1)
+        df_nav_water = df_nav_water.drop(df_nav_water.columns[[1,3,4,5,7,8]], axis=1)
         df_nav_water.columns = ["Site", "Value", "Date"]
 
         # df_bm_water = df_bm_water[1:]
@@ -814,7 +816,7 @@ def clean_powell_data(lake):
 
         for i in range(9): next(crm)
         df_fg_water = pd.DataFrame(crm)
-        df_fg_water = df_fg_water.drop(df_fg_water.columns[[1,3,4,5]], axis=1)
+        df_fg_water = df_fg_water.drop(df_fg_water.columns[[1,3,4,5,7,8]], axis=1)
         df_fg_water.columns = ["Site", "Value", "Date"]
 
         # df_bm_water = df_bm_water[1:]
@@ -1013,4 +1015,4 @@ def lake_graph(lake, powell_data, mead_data, combo_data, bm_data, nav_data, fg_d
     return {'data': mead_traces, 'layout': mead_layout}, {'data': powell_traces, 'layout': powell_layout}, {'data': combo_traces, 'layout': combo_layout}, {'data': bm_traces, 'layout': bm_layout}, {'data': nav_traces, 'layout': nav_layout}, {'data': fg_traces, 'layout': fg_layout}
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
